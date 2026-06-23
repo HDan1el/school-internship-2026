@@ -6,4 +6,10 @@
 
 Подключил MCP server к Docker.
 
-AI Claude помогает создать PrcingTable для NetLicensing
+AI Claude помогает создать PricingTable для NetLicensing
+
+# День 2 23.06.2026
+
+Продолжил работу с PricingTable
+
+Успешно создал PricingTable в NetLicensing
