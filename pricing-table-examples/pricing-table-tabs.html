@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pricing</title>
+<style>
+  :root {
+    --sme-a:   #6ee7f7;
+    --sme-b:   #818cf8;
+    --ent-a:   #f472b6;
+    --ent-b:   #a78bfa;
+    --glass-bg: rgba(255,255,255,0.05);
+    --glass-border: rgba(255,255,255,0.10);
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --radius: 18px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Animated mesh background ── */
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+    background: #080b1a;
+    color: var(--text);
+    padding: 64px 24px 80px;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 30%,  rgba(99,102,241,.28) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 60% at 80% 70%,  rgba(168,85,247,.22) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 60% 10%,  rgba(6,182,212,.15)  0%, transparent 70%);
+    animation: bgshift 12s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  @keyframes bgshift {
+    0%   { opacity: 1; transform: scale(1)   rotate(0deg); }
+    50%  { opacity: .8; transform: scale(1.06) rotate(1deg); }
+    100% { opacity: 1; transform: scale(1)   rotate(0deg); }
+  }
+
+  /* subtle dot grid overlay */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(rgba(255,255,255,.07) 1px, transparent 1px);
+    background-size: 32px 32px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper { position: relative; z-index: 1; }
+
+  /* ── Header ── */
+  .pricing-header {
+    text-align: center;
+    max-width: 620px;
+    margin: 0 auto 44px;
+    animation: fadeDown .6s ease both;
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .pricing-header h1 {
+    font-size: 2.6rem;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    background: linear-gradient(135deg, #e0e7ff 0%, #a5b4fc 50%, #7c3aed 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 14px;
+  }
+
+  .pricing-header p {
+    color: var(--muted);
+    font-size: 1.05rem;
+  }
+
+  /* ── Pill toggle ── */
+  .toggle-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 52px;
+    animation: fadeDown .6s .1s ease both;
+  }
+
+  .toggle-pill {
+    display: flex;
+    background: rgba(255,255,255,.07);
+    border: 1px solid var(--glass-border);
+    border-radius: 999px;
+    padding: 5px;
+    gap: 4px;
+    backdrop-filter: blur(10px);
+  }
+
+  .pill-btn {
+    position: relative;
+    padding: 9px 28px;
+    border-radius: 999px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: .93rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color .25s;
+    z-index: 1;
+    outline: none;
+  }
+
+  .pill-btn.active { color: #0f0f1a; }
+
+  .pill-slider {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    height: calc(100% - 10px);
+    border-radius: 999px;
+    transition: transform .35s cubic-bezier(.4,0,.2,1), width .35s cubic-bezier(.4,0,.2,1);
+    z-index: 0;
+  }
+
+  .mode-sme  .pill-slider { background: linear-gradient(90deg, var(--sme-a), var(--sme-b)); }
+  .mode-ent  .pill-slider { background: linear-gradient(90deg, var(--ent-b), var(--ent-a)); }
+
+  /* ── Panels ── */
+  .panel { display: none; }
+  .panel.active { display: grid; }
+
+  .pricing-grid {
+    grid-template-columns: repeat(3,1fr);
+    gap: 22px;
+    max-width: 1020px;
+    margin: 0 auto;
+  }
+
+  /* staggered card entrance */
+  .panel.active .plan {
+    animation: cardIn .5s ease both;
+  }
+  .panel.active .plan:nth-child(1) { animation-delay: .05s; }
+  .panel.active .plan:nth-child(2) { animation-delay: .14s; }
+  .panel.active .plan:nth-child(3) { animation-delay: .23s; }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(28px) scale(.97); }
+    to   { opacity: 1; transform: translateY(0)    scale(1); }
+  }
+
+  /* ── Card base ── */
+  .plan {
+    position: relative;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    padding: 36px 28px 30px;
+    display: flex;
+    flex-direction: column;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    overflow: hidden;
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+
+  .plan:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 24px 48px rgba(0,0,0,.4);
+  }
+
+  /* sheen on hover */
+  .plan::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,.06) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity .3s;
+    pointer-events: none;
+    border-radius: var(--radius);
+  }
+  .plan:hover::before { opacity: 1; }
+
+  /* ── Glow border on featured ── */
+  .plan.featured {
+    background: rgba(255,255,255,.07);
+  }
+
+  .mode-sme .plan.featured {
+    border-color: rgba(110,231,247,.45);
+    box-shadow: 0 0 0 1px rgba(110,231,247,.2), 0 0 28px rgba(110,231,247,.12);
+  }
+  .mode-ent .plan.featured {
+    border-color: rgba(167,139,250,.45);
+    box-shadow: 0 0 0 1px rgba(167,139,250,.2), 0 0 28px rgba(167,139,250,.12);
+  }
+
+  /* ── Badge ── */
+  .badge {
+    position: absolute;
+    top: -1px; right: 24px;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    padding: 4px 12px 5px;
+    border-radius: 0 0 10px 10px;
+    color: #0f0f1a;
+  }
+
+  .mode-sme .badge { background: linear-gradient(90deg, var(--sme-a), var(--sme-b)); }
+  .mode-ent .badge { background: linear-gradient(90deg, var(--ent-b), var(--ent-a)); }
+
+  /* ── Card content ── */
+  .plan-icon {
+    width: 42px; height: 42px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+    margin-bottom: 18px;
+  }
+
+  .mode-sme .plan-icon { background: rgba(110,231,247,.12); }
+  .mode-ent .plan-icon { background: rgba(244,114,182,.12); }
+
+  .plan-name {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    letter-spacing: -.01em;
+  }
+
+  .plan-desc {
+    color: var(--muted);
+    font-size: .88rem;
+    margin-bottom: 22px;
+    line-height: 1.5;
+  }
+
+  /* price with animated number */
+  .plan-price-row { margin-bottom: 4px; }
+
+  .plan-price {
+    font-size: 2.8rem;
+    font-weight: 800;
+    letter-spacing: -.03em;
+    line-height: 1;
+    display: inline-block;
+  }
+
+  .mode-sme .plan.featured .plan-price {
+    background: linear-gradient(135deg, var(--sme-a), var(--sme-b));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .mode-ent .plan.featured .plan-price {
+    background: linear-gradient(135deg, var(--ent-b), var(--ent-a));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .plan-price sup {
+    font-size: 1.2rem;
+    font-weight: 700;
+    vertical-align: super;
+    -webkit-text-fill-color: initial;
+  }
+  .plan-price sub {
+    font-size: .9rem;
+    font-weight: 400;
+    color: var(--muted);
+    vertical-align: baseline;
+    -webkit-text-fill-color: var(--muted);
+  }
+  .plan-price.custom-price {
+    font-size: 1.8rem;
+    -webkit-text-fill-color: var(--text);
+  }
+
+  .plan-billing {
+    color: var(--muted);
+    font-size: .82rem;
+    margin-bottom: 24px;
+    min-height: 1.1em;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--glass-border);
+    margin-bottom: 20px;
+  }
+
+  .plan-features {
+    list-style: none;
+    flex-grow: 1;
+    margin-bottom: 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+
+  .plan-features li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: .88rem;
+    color: #cbd5e1;
+    opacity: 0;
+    animation: featureIn .35s ease forwards;
+  }
+
+  @keyframes featureIn {
+    from { opacity: 0; transform: translateX(-8px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  /* stagger feature items */
+  .plan.active-anim .plan-features li:nth-child(1)  { animation-delay: .28s; }
+  .plan.active-anim .plan-features li:nth-child(2)  { animation-delay: .34s; }
+  .plan.active-anim .plan-features li:nth-child(3)  { animation-delay: .40s; }
+  .plan.active-anim .plan-features li:nth-child(4)  { animation-delay: .46s; }
+  .plan.active-anim .plan-features li:nth-child(5)  { animation-delay: .52s; }
+  .plan.active-anim .plan-features li:nth-child(6)  { animation-delay: .58s; }
+
+  .feat-dot {
+    flex-shrink: 0;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+  }
+
+  .mode-sme .feat-dot { background: var(--sme-a); box-shadow: 0 0 5px var(--sme-a); }
+  .mode-ent .feat-dot { background: var(--ent-a); box-shadow: 0 0 5px var(--ent-a); }
+
+  .feat-tag {
+    margin-left: auto;
+    font-size: .68rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: .04em;
+    background: rgba(167,139,250,.18);
+    color: #c4b5fd;
+  }
+
+  /* ── CTA button ── */
+  .plan-cta {
+    display: block;
+    text-align: center;
+    padding: 13px 0;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: .92rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform .2s, box-shadow .2s, opacity .2s;
+    border: 1px solid var(--glass-border);
+    color: var(--text);
+    background: rgba(255,255,255,.08);
+    letter-spacing: .01em;
+  }
+
+  .plan-cta:hover {
+    transform: scale(1.02);
+    opacity: .9;
+    box-shadow: 0 6px 24px rgba(0,0,0,.3);
+  }
+
+  .plan.featured .plan-cta {
+    border: none;
+    color: #0f0f1a;
+    font-weight: 800;
+    letter-spacing: .02em;
+  }
+
+  .mode-sme .plan.featured .plan-cta {
+    background: linear-gradient(90deg, var(--sme-a), var(--sme-b));
+    box-shadow: 0 4px 20px rgba(129,140,248,.35);
+  }
+  .mode-ent .plan.featured .plan-cta {
+    background: linear-gradient(90deg, var(--ent-b), var(--ent-a));
+    box-shadow: 0 4px 20px rgba(244,114,182,.35);
+  }
+
+  .plan.featured .plan-cta:hover {
+    box-shadow: 0 8px 28px rgba(129,140,248,.5);
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 860px) {
+    .pricing-grid { grid-template-columns: 1fr; max-width: 420px; }
+  }
+</style>
+</head>
+<body class="mode-sme">
+<div class="wrapper">
+
+  <!-- Header -->
+  <div class="pricing-header">
+    <h1>Plans built for&nbsp;every&nbsp;scale</h1>
+    <p>From solo makers to global enterprises — pick what fits.</p>
+  </div>
+
+  <!-- Pill toggle -->
+  <div class="toggle-wrapper">
+    <div class="toggle-pill" id="toggle-pill">
+      <div class="pill-slider" id="pill-slider"></div>
+      <button class="pill-btn active" id="btn-sme" onclick="switchMode('sme')">Personal &amp; SME</button>
+      <button class="pill-btn"        id="btn-ent" onclick="switchMode('ent')">Enterprise</button>
+    </div>
+  </div>
+
+  <!-- SME Panel -->
+  <div class="panel pricing-grid active" id="panel-sme">
+
+    <div class="plan active-anim">
+      <div class="plan-icon">🌱</div>
+      <div class="plan-name">Starter</div>
+      <div class="plan-desc">Perfect for freelancers and solo makers just getting off the ground.</div>
+      <div class="plan-price-row">
+        <span class="plan-price"><sup>$</sup>9<sub>/mo</sub></span>
+      </div>
+      <div class="plan-billing">Billed monthly, cancel anytime</div>
+      <hr class="divider">
+      <ul class="plan-features">
+        <li><span class="feat-dot"></span> 1 user</li>
+        <li><span class="feat-dot"></span> 5 projects</li>
+        <li><span class="feat-dot"></span> 2 GB storage</li>
+        <li><span class="feat-dot"></span> Email support</li>
+      </ul>
+      <a href="#" class="plan-cta">Get started free</a>
+    </div>
+
+    <div class="plan featured active-anim">
+      <div class="badge">Most popular</div>
+      <div class="plan-icon">⚡</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-desc">For growing teams that need power without the complexity.</div>
+      <div class="plan-price-row">
+        <span class="plan-price"><sup>$</sup>29<sub>/mo</sub></span>
+      </div>
+      <div class="plan-billing">Billed monthly, cancel anytime</div>
+      <hr class="divider">
+      <ul class="plan-features">
+        <li><span class="feat-dot"></span> Up to 5 users</li>
+        <li><span class="feat-dot"></span> Unlimited projects</li>
+        <li><span class="feat-dot"></span> 50 GB storage</li>
+        <li><span class="feat-dot"></span> Priority support</li>
+        <li><span class="feat-dot"></span> Advanced analytics</li>
+      </ul>
+      <a href="#" class="plan-cta">Get started</a>
+    </div>
+
+    <div class="plan active-anim">
+      <div class="plan-icon">🏢</div>
+      <div class="plan-name">Business</div>
+      <div class="plan-desc">For scaling SMEs that need serious horsepower and support.</div>
+      <div class="plan-price-row">
+        <span class="plan-price"><sup>$</sup>79<sub>/mo</sub></span>
+      </div>
+      <div class="plan-billing">Billed monthly, cancel anytime</div>
+      <hr class="divider">
+      <ul class="plan-features">
+        <li><span class="feat-dot"></span> Up to 20 users</li>
+        <li><span class="feat-dot"></span> Unlimited projects</li>
+        <li><span class="feat-dot"></span> 500 GB storage</li>
+        <li><span class="feat-dot"></span> Phone &amp; email support</li>
+        <li><span class="feat-dot"></span> Custom integrations</li>
+        <li><span class="feat-dot"></span> Full audit logs</li>
+      </ul>
+      <a href="#" class="plan-cta">Get started</a>
+    </div>
+
+  </div>
+
+  <!-- Enterprise Panel -->
+  <div class="panel pricing-grid" id="panel-ent">
+
+    <div class="plan active-anim">
+      <div class="plan-icon">🛡️</div>
+      <div class="plan-name">Team</div>
+      <div class="plan-desc">Enterprise-grade tooling for large departments ready to scale.</div>
+      <div class="plan-price-row">
+        <span class="plan-price"><sup>$</sup>199<sub>/mo</sub></span>
+      </div>
+      <div class="plan-billing">Up to 50 users · billed annually</div>
+      <hr class="divider">
+      <ul class="plan-features">
+        <li><span class="feat-dot"></span> SSO / SAML <span class="feat-tag">NEW</span></li>
+        <li><span class="feat-dot"></span> 2 TB storage</li>
+        <li><span class="feat-dot"></span> Dedicated account manager</li>
+        <li><span class="feat-dot"></span> 99.9% uptime SLA</li>
+        <li><span class="feat-dot"></span> Advanced audit logs</li>
+      </ul>
+      <a href="#" class="plan-cta">Contact sales</a>
+    </div>
+
+    <div class="plan featured active-anim">
+      <div class="badge">Recommended</div>
+      <div class="plan-icon">🚀</div>
+      <div class="plan-name">Corporate</div>
+      <div class="plan-desc">Full control and compliance for large organisations worldwide.</div>
+      <div class="plan-price-row">
+        <span class="plan-price"><sup>$</sup>499<sub>/mo</sub></span>
+      </div>
+      <div class="plan-billing">Up to 200 users · billed annually</div>
+      <hr class="divider">
+      <ul class="plan-features">
+        <li><span class="feat-dot"></span> Everything in Team</li>
+        <li><span class="feat-dot"></span> 10 TB storage</li>
+        <li><span class="feat-dot"></span> Custom data residency</li>
+        <li><span class="feat-dot"></span> Priority 24/7 support</li>
+        <li><span class="feat-dot"></span> Role-based access control</li>
+        <li><span class="feat-dot"></span> Custom contracts &amp; billing</li>
+      </ul>
+      <a href="#" class="plan-cta">Contact sales</a>
+    </div>
+
+    <div class="plan active-anim">
+      <div class="plan-icon">🌐</div>
+      <div class="plan-name">Enterprise+</div>
+      <div class="plan-desc">Unlimited scale, bespoke infrastructure, and white-glove service.</div>
+      <div class="plan-price-row">
+        <span class="plan-price custom-price">Custom</span>
+      </div>
+      <div class="plan-billing">Unlimited users · custom terms</div>
+      <hr class="divider">
+      <ul class="plan-features">
+        <li><span class="feat-dot"></span> Everything in Corporate</li>
+        <li><span class="feat-dot"></span> Unlimited storage</li>
+        <li><span class="feat-dot"></span> On-premise deployment</li>
+        <li><span class="feat-dot"></span> Dedicated infrastructure</li>
+        <li><span class="feat-dot"></span> Pen-test &amp; security review</li>
+        <li><span class="feat-dot"></span> Custom SLA</li>
+      </ul>
+      <a href="#" class="plan-cta">Talk to us</a>
+    </div>
+
+  </div>
+
+</div><!-- /wrapper -->
+
+<script>
+  let current = 'sme';
+  const btnSme   = document.getElementById('btn-sme');
+  const btnEnt   = document.getElementById('btn-ent');
+  const panelSme = document.getElementById('panel-sme');
+  const panelEnt = document.getElementById('panel-ent');
+  const slider   = document.getElementById('pill-slider');
+  const body     = document.body;
+
+  function positionSlider(btn) {
+    const pill = document.getElementById('toggle-pill');
+    const pillRect = pill.getBoundingClientRect();
+    const btnRect  = btn.getBoundingClientRect();
+    slider.style.width  = btnRect.width  + 'px';
+    slider.style.transform = `translateX(${btnRect.left - pillRect.left - 5}px)`;
+  }
+
+  function switchMode(mode) {
+    if (mode === current) return;
+    current = mode;
+
+    const showPanel = mode === 'sme' ? panelSme : panelEnt;
+    const hidePanel = mode === 'sme' ? panelEnt : panelSme;
+    const activeBtn = mode === 'sme' ? btnSme   : btnEnt;
+    const inactiveBtn = mode === 'sme' ? btnEnt  : btnSme;
+
+    // toggle body class for colour theming
+    body.className = `mode-${mode}`;
+
+    // update pill button states
+    activeBtn.classList.add('active');
+    inactiveBtn.classList.remove('active');
+    positionSlider(activeBtn);
+
+    // swap panels with re-trigger of animation
+    hidePanel.classList.remove('active');
+    showPanel.classList.remove('active');
+
+    // remove and re-add active-anim to re-fire animations
+    showPanel.querySelectorAll('.plan').forEach(p => {
+      p.classList.remove('active-anim');
+      void p.offsetWidth; // reflow
+      p.classList.add('active-anim');
+    });
+
+    setTimeout(() => { showPanel.classList.add('active'); }, 30);
+  }
+
+  // Init slider position
+  window.addEventListener('load', () => positionSlider(btnSme));
+  window.addEventListener('resize', () => {
+    const activeBtn = current === 'sme' ? btnSme : btnEnt;
+    positionSlider(activeBtn);
+  });
+</script>
+</body>
+</html>
